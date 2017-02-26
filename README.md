@@ -6,8 +6,12 @@ WWW::XKCD::AsText - retrieve text versions of comics on www.xkcd.com
 
     use WWW::XKCD::AsText;
 
-    my $xkcd = WWW::XKCD::AsText->new;
-    my $text = $xkcd->retrieve(1);
+    my $xkcd          = WWW::XKCD::AsText->new;
+    my $xkcd_retrieve = $xkcd->retrieve(1); # "A boy sits in a barrel..."
+
+    $xkcd_retrieve->uri;   # "https://www.xkcd.com/1/"
+    $xkcd_retrieve->text;  # "A boy sits in a barrel..."
+    $xkcd_retrieve->error; # line_status
 
 # METHODS
 
