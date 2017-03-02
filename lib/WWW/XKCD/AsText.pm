@@ -23,47 +23,53 @@ use Moose;
 use Carp;
 use URI;
 use JSON;
-use Try::Tiny;
 use LWP::UserAgent;
 
 has 'timeout' => (
   is  => 'ro',
-  isa => 'Int',
+  isa => 'Maybe[Int]',
   required => 1,
   default  => 30,
 );
 
 has 'agent' => (
   is  => 'ro',
-  isa => 'Str',
+  isa => 'Maybe[Str]',
 );
 
 has 'ua' => (
   is  => 'rw',
-  isa => 'LWP::UserAgent',
-  default => sub {
-    my $self = shift;
-    return LWP::UserAgent->new(
-      timeout => $self->timeout,
-      agent   => $self->agent // '',
-    );
-  },
+  isa => 'Maybe[LWP::UserAgent]',
+  builder => '_build_ua',
 );
+
+sub _build_ua{
+  my $self = shift;
+  return LWP::UserAgent->new(
+    timeout => $self->timeout // 30,
+    agent   => $self->agent   // '',
+  );
+}
 
 has 'uri' => (
   is  => 'rw',
-  isa => 'Str|Undef'
+  isa => 'Maybe[URI]',
 );
 
 has 'error' => (
   is  => 'rw',
-  isa => 'Str|Undef'
+  isa => 'Maybe[Str]',
 );
 
 has 'text' => (
   is  => 'rw',
-  isa => 'Str|Undef'
+  isa => 'Maybe[Str]',
 );
+
+sub BUILD{
+  my $self = shift;
+  $self->ua($self->_build_ua) unless defined $self->ua;
+}
 
 =head1 METHODS
 
@@ -78,9 +84,9 @@ sub retrieve {
 
   $self->$_(undef) foreach (qw(uri text error));
 
-  croak 'ID must be a valid number' unless $id && $id=~/^\d{1,6}$/;
+  croak 'ID must be a valid number' unless $id && $id=~/^\d+$/;
 
-  $self->uri("http://xkcd.com/$id/");
+  $self->uri(URI->new("http://xkcd.com/$id/"));
   my $json_uri = URI->new("https://xkcd.com/$id/info.0.json");
   my $response = $self->ua->get($json_uri);
 
