@@ -1,5 +1,8 @@
 Revision history for WWW-XKCD-AsText
 
+0.006   2017-03-01
+        - Fixes for test suite
+
 0.005   2017-02-26
         - Move back to LWP::UserAgent
         - Use Moose
